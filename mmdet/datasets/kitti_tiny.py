@@ -5,15 +5,16 @@ import cv2
 import mmcv
 import numpy as np
 
-from mmdet.datasets.builder import DATASETS
-from mmdet.datasets.custom import CustomDataset
+from .builder import DATASETS
+from .custom import CustomDataset
 
 CLASSES = ('Car', 'Truck', 'Pedestrian', 'Cyclist')
 cat2label = {k:i for i, k in enumerate(CLASSES)}
 
 # 반드시 아래 Decorator 설정 할것.@DATASETS.register_module() 설정 시 force=True를 입력하지 않으면 Dataset 재등록 불가. 
+# @DATASETS.register_module()
 @DATASETS.register_module(force=True)
-class KittyTinyDataset(CustomDataset):
+class KittiTinyDataset(CustomDataset):
   CLASSES = ('Car', 'Truck', 'Pedestrian', 'Cyclist')
   
   ##### self.data_root: ./kitti_tiny/ self.ann_file: ./kitti_tiny/train.txt self.img_prefix: ./kitti_tiny/training/image_2
