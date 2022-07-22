@@ -331,9 +331,10 @@ model = build_detector(cfg.model, train_cfg=cfg.get('train_cfg'), test_cfg=cfg.g
 model.CLASSES = datasets[0].CLASSES
 
 
-import mmcv
-import os.path as osp
-mmcv.mkdir_or_exist(osp.abspath(cfg.work_dir))
-# epochs는 config의 runner 파라미터로 지정됨. 기본 12회 
-cfg.device = "cuda"
-train_detector(model, datasets, cfg, distributed=False, validate=True)
+if __name__ == "__main__":
+    import mmcv
+    import os.path as osp
+    mmcv.mkdir_or_exist(osp.abspath(cfg.work_dir))
+    # epochs는 config의 runner 파라미터로 지정됨. 기본 12회 
+    cfg.device = "cuda"
+    train_detector(model, datasets, cfg, distributed=False, validate=True)
