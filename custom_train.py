@@ -330,7 +330,6 @@ datasets = [build_dataset(cfg.data.train)]
 model = build_detector(cfg.model, train_cfg=cfg.get('train_cfg'), test_cfg=cfg.get('test_cfg'))
 model.CLASSES = datasets[0].CLASSES
 
-
 if __name__ == "__main__":
     import mmcv
     import os.path as osp
@@ -338,3 +337,13 @@ if __name__ == "__main__":
     # epochs는 config의 runner 파라미터로 지정됨. 기본 12회 
     cfg.device = "cuda"
     train_detector(model, datasets, cfg, distributed=False, validate=True)
+
+from mmdet.apis import inference_detector, init_detector, show_result_pyplot
+
+# BGR Image 사용 
+img = cv2.imread('/content/kitti_tiny/training/image_2/000068.jpeg')
+
+model.cfg = cfg
+
+result = inference_detector(model, img)
+show_result_pyplot(model, img, result)
