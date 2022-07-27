@@ -346,4 +346,5 @@ img = cv2.imread('/content/kitti_tiny/training/image_2/000068.jpeg')
 model.cfg = cfg
 
 result = inference_detector(model, img)
-show_result_pyplot(model, img, out_file="test.jpeg")
+# show_result_pyplot(model, img, out_file="test.jpeg")
+model.show_result(img, result, out_file="test.jpeg")
