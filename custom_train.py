@@ -341,7 +341,7 @@ if __name__ == "__main__":
 from mmdet.apis import inference_detector, init_detector, show_result_pyplot
 
 # BGR Image 사용 
-img = cv2.imread('/content/kitti_tiny/training/image_2/000068.jpeg')
+img = cv2.imread('/data/kitti_tiny/training/image_2/000068.jpeg')
 
 model.cfg = cfg
 
