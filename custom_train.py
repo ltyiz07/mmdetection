@@ -339,9 +339,10 @@ if __name__ == "__main__":
     train_detector(model, datasets, cfg, distributed=False, validate=True)
 
 from mmdet.apis import inference_detector, init_detector, show_result_pyplot
+import cv2
 
 # BGR Image 사용 
-img = cv2.imread('/data/kitti_tiny/training/image_2/000068.jpeg')
+img = cv2.imread('./data/kitti_tiny/training/image_2/000068.jpeg')
 
 model.cfg = cfg
 
