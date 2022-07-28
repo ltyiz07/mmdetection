@@ -338,14 +338,14 @@ if __name__ == "__main__":
     cfg.device = "cuda"
     train_detector(model, datasets, cfg, distributed=False, validate=True)
 
-from mmdet.apis import inference_detector, init_detector, show_result_pyplot
-import cv2
+# from mmdet.apis import inference_detector, init_detector, show_result_pyplot
+# import cv2
 
-# BGR Image 사용 
-img = cv2.imread('./data/kitti_tiny/training/image_2/000068.jpeg')
+# # BGR Image 사용 
+# img = cv2.imread('./data/kitti_tiny/training/image_2/000068.jpeg')
 
-model.cfg = cfg
+# model.cfg = cfg
 
-result = inference_detector(model, img)
-# show_result_pyplot(model, img, out_file="test.jpeg")
-model.show_result(img, result, out_file="./test.jpeg")
+# result = inference_detector(model, img)
+# # show_result_pyplot(model, img, out_file="test.jpeg")
+# model.show_result(img, result, out_file="./test.jpeg")
