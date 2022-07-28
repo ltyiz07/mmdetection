@@ -1,4 +1,7 @@
 data/
+tutorial_exps/
+tutorial_exps2/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
