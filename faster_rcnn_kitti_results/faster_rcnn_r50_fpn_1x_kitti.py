@@ -165,8 +165,8 @@ data = dict(
     workers_per_gpu=2,
     train=dict(
         type='KittiDataset',
-        ann_file='train.txt',
-        img_prefix='training/image_2',
+        ann_file='data/kitti/train.txt',
+        img_prefix='data/kitti/training/image_2',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(type='LoadAnnotations', with_bbox=True),
@@ -180,12 +180,11 @@ data = dict(
             dict(type='Pad', size_divisor=32),
             dict(type='DefaultFormatBundle'),
             dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
-        ],
-        data_root='./data/kitti/'),
+        ]),
     val=dict(
         type='KittiDataset',
-        ann_file='val.txt',
-        img_prefix='training/image_2',
+        ann_file='data/kitti/val.txt',
+        img_prefix='data/kitti/training/image_2',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(
@@ -204,12 +203,11 @@ data = dict(
                     dict(type='ImageToTensor', keys=['img']),
                     dict(type='Collect', keys=['img'])
                 ])
-        ],
-        data_root='./data/kitti/'),
+        ]),
     test=dict(
         type='KittiDataset',
-        ann_file='val.txt',
-        img_prefix='training/image_2',
+        ann_file='data/kitti/val.txt',
+        img_prefix='data/kitti/training/image_2',
         pipeline=[
             dict(type='LoadImageFromWebcam'),
             dict(
@@ -228,8 +226,7 @@ data = dict(
                     dict(type='DefaultFormatBundle'),
                     dict(type='Collect', keys=['img'])
                 ])
-        ],
-        data_root='./data/kitti/'))
+        ]))
 evaluation = dict(interval=12, metric='mAP', by_epoch=True)
 optimizer = dict(type='SGD', lr=0.0025, momentum=0.9, weight_decay=0.0001)
 optimizer_config = dict(grad_clip=None, type='OptimizerHook')
