@@ -207,7 +207,7 @@ data = dict(
         ],
         data_root='./data/kitti/'),
     test=dict(
-        type='KittyTinyDataset',
+        type='KittiDataset',
         ann_file='val.txt',
         img_prefix='training/image_2',
         pipeline=[
