@@ -105,8 +105,7 @@ class LoadImageFromWebcam(LoadImageFromFile):
         Returns:
             dict: The dict contains loaded image and meta information.
         """
-        print('**************************************************')
-        print(results)
+
         img = results['img']
         if self.to_float32:
             img = img.astype(np.float32)

@@ -42,7 +42,7 @@ data = dict(
     train=dict(
         type='KittiDataset',
         ann_file=data_root + 'train.txt',
-        img_prefix=data_root + 'training/image_2',
+        img_prefix=data_root + 'training/image_2/',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(type='LoadAnnotations', with_bbox=True),
@@ -60,7 +60,7 @@ data = dict(
     val=dict(
         type='KittiDataset',
         ann_file=data_root + 'val.txt',
-        img_prefix=data_root + 'training/image_2',
+        img_prefix=data_root + 'training/image_2/',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(
@@ -83,9 +83,9 @@ data = dict(
     test=dict(
         type='KittiDataset',
         ann_file=data_root + 'val.txt',
-        img_prefix=data_root + 'training/image_2',
+        img_prefix=data_root + 'training/image_2/',
         pipeline=[
-            dict(type='LoadImageFromWebcam'),
+            dict(type='LoadImageFromFile'),
             dict(
                 type='MultiScaleFlipAug',
                 img_scale=(1333, 800),

@@ -1,6 +1,8 @@
 data/
 tutorial_exps/
 tutorial_exps2/
+checkpoints/
+faster_rcnn_kitti_results/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
