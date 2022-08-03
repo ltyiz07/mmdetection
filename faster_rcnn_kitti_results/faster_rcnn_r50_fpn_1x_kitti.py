@@ -1,5 +1,5 @@
 model = dict(
-    type='FasterRCNN',
+    type='FasterRCNNCustom',
     pretrained='torchvision://resnet50',
     backbone=dict(
         type='ResNet',
@@ -33,7 +33,7 @@ model = dict(
             type='CrossEntropyLoss', use_sigmoid=True, loss_weight=1.0),
         loss_bbox=dict(type='L1Loss', loss_weight=1.0)),
     roi_head=dict(
-        type='StandardRoIHead',
+        type='StandardRoIHeadCustom',
         bbox_roi_extractor=dict(
             type='SingleRoIExtractor',
             roi_layer=dict(type='RoIAlign', output_size=7, sampling_ratio=0),
@@ -129,7 +129,7 @@ img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 train_pipeline = [
     dict(type='LoadImageFromFile'),
-    dict(type='LoadAnnotations', with_bbox=True),
+    dict(type='LoadAnnotationsCustom', with_bbox=True, with_alpha=True),
     dict(type='Resize', img_scale=(1333, 800), keep_ratio=True),
     dict(type='RandomFlip', flip_ratio=0.5),
     dict(
@@ -139,7 +139,7 @@ train_pipeline = [
         to_rgb=True),
     dict(type='Pad', size_divisor=32),
     dict(type='DefaultFormatBundle'),
-    dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
+    dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels', 'gt_alpha'])
 ]
 test_pipeline = [
     dict(type='LoadImageFromFile'),
@@ -169,7 +169,8 @@ data = dict(
         img_prefix='data/kitti/training/image_2/',
         pipeline=[
             dict(type='LoadImageFromFile'),
-            dict(type='LoadAnnotations', with_bbox=True),
+            dict(
+                type='LoadAnnotationsCustom', with_bbox=True, with_alpha=True),
             dict(type='Resize', img_scale=(1333, 800), keep_ratio=True),
             dict(type='RandomFlip', flip_ratio=0.5),
             dict(
@@ -179,7 +180,9 @@ data = dict(
                 to_rgb=True),
             dict(type='Pad', size_divisor=32),
             dict(type='DefaultFormatBundle'),
-            dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
+            dict(
+                type='Collect',
+                keys=['img', 'gt_bboxes', 'gt_labels', 'gt_alpha'])
         ]),
     val=dict(
         type='KittiDataset',
@@ -209,7 +212,7 @@ data = dict(
         ann_file='data/kitti/val.txt',
         img_prefix='data/kitti/training/image_2/',
         pipeline=[
-            dict(type='LoadImageFromWebcam'),
+            dict(type='LoadImageFromFile'),
             dict(
                 type='MultiScaleFlipAug',
                 img_scale=(1333, 800),
@@ -251,5 +254,5 @@ seed = 0
 gpu_ids = [0]
 opencv_num_threads = 0
 mp_start_method = 'fork'
-auto_scale_lr = dict(enable=False, base_batch_size=16)
+auto_scale_lr = dict(enable=True, base_batch_size=16)
 auto_resume = False

@@ -17,8 +17,8 @@ cat2label = {k:i for i, k in enumerate(CLASSES)}
 class KittiDataset(CustomDataset):
   CLASSES = ('Car', 'Van', 'Truck', 'Pedestrian', 'Person_sitting', 'Cyclist', 'Tram', 'Misc', 'DontCare')
   
-  ##### self.data_root: ./kitti_tiny/ self.ann_file: ./kitti_tiny/train.txt self.img_prefix: ./kitti_tiny/training/image_2
-  #### ann_file: ./kitti_tiny/train.txt
+    ##### self.data_root: ./kitti_tiny/ self.ann_file: ./kitti_tiny/train.txt self.img_prefix: ./kitti_tiny/training/image_2
+    #### ann_file: ./kitti_tiny/train.txt
   # annotation에 대한 모든 파일명을 가지고 있는 텍스트 파일을 __init__(self, ann_file)로 입력 받고, 이 self.ann_file이 load_annotations()의 인자로 입력
   def load_annotations(self, ann_file):
     print('##### self.data_root:', self.data_root, 'self.ann_file:', self.ann_file, 'self.img_prefix:', self.img_prefix)
@@ -75,10 +75,10 @@ class KittiDataset(CustomDataset):
       data_anno = {
           'bboxes': np.array(gt_bboxes, dtype=np.float32).reshape(-1, 4),
           'labels': np.array(gt_labels, dtype=np.long),
-          'alpha' : np.array(gt_alpha, dtype=np.long),
+          'alpha' : np.array(gt_alpha, dtype=np.float32),
           'bboxes_ignore': np.array(gt_bboxes_ignore, dtype=np.float32).reshape(-1, 4),
           'labels_ignore': np.array(gt_labels_ignore, dtype=np.long),
-          "alpha_ignore": np.array(gt_alpha_ignore, dtype=np.long)
+          "alpha_ignore": np.array(gt_alpha_ignore, dtype=np.float32)
       }
       # image에 대한 메타 정보를 가지는 data_info Dict에 'ann' key값으로 data_anno를 value로 저장. 
       data_info.update(ann=data_anno)
@@ -86,3 +86,12 @@ class KittiDataset(CustomDataset):
       data_infos.append(data_info)
 
     return data_infos
+  
+  def pre_pipeline(self, results):
+      """Prepare results dict for pipeline."""
+      results['img_prefix'] = self.img_prefix
+      results['seg_prefix'] = self.seg_prefix
+      results['proposal_file'] = self.proposal_file
+      results['bbox_fields'] = []
+      results['mask_fields'] = []
+      results['seg_fields'] = []

@@ -7,7 +7,7 @@ train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotationsCustom', with_bbox=True, with_alpha=True),
     dict(type='Resize', img_scale=(1333, 800), keep_ratio=True),
-    # dict(type='RandomFlip', flip_ratio=0.5),
+    dict(type='RandomFlip', flip_ratio=0.5),
     dict(
         type='Normalize',
         mean=[123.675, 116.28, 103.53],
@@ -25,7 +25,7 @@ test_pipeline = [
         flip=False,
         transforms=[
             dict(type='Resize', keep_ratio=True),
-            # dict(type='RandomFlip'),
+            dict(type='RandomFlip'),
             dict(
                 type='Normalize',
                 mean=[123.675, 116.28, 103.53],
@@ -47,7 +47,7 @@ data = dict(
             dict(type='LoadImageFromFile'),
             dict(type='LoadAnnotationsCustom', with_bbox=True, with_alpha=True),
             dict(type='Resize', img_scale=(1333, 800), keep_ratio=True),
-            # dict(type='RandomFlip', flip_ratio=0.5),
+            dict(type='RandomFlip', flip_ratio=0.5),
             dict(
                 type='Normalize',
                 mean=[123.675, 116.28, 103.53],
@@ -69,7 +69,7 @@ data = dict(
                 flip=False,
                 transforms=[
                     dict(type='Resize', keep_ratio=True),
-                    # dict(type='RandomFlip'),
+                    dict(type='RandomFlip'),
                     dict(
                         type='Normalize',
                         mean=[123.675, 116.28, 103.53],
@@ -92,7 +92,7 @@ data = dict(
                 flip=False,
                 transforms=[
                     dict(type='Resize', keep_ratio=True),
-                    # dict(type='RandomFlip'),
+                    dict(type='RandomFlip'),
                     dict(
                         type='Normalize',
                         mean=[123.675, 116.28, 103.53],
