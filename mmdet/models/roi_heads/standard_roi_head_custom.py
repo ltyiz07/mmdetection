@@ -15,6 +15,8 @@ class StandardRoIHeadCustom(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
         """Initialize assigner and sampler."""
         self.bbox_assigner = None
         self.bbox_sampler = None
+        print("^^assigner^^^^^^^^^^^^^^^^^^^^^^")
+        print(f"assigner: {self.train_cfg.assigner}")
         if self.train_cfg:
             self.bbox_assigner = build_assigner(self.train_cfg.assigner)
             self.bbox_sampler = build_sampler(
@@ -84,6 +86,8 @@ class StandardRoIHeadCustom(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
         # assign gts and sample proposals
         print("*****************************")
         print(f"gt_alpha: {gt_alpha}")
+        print("^^assigner^^^^^^^^^^^^^^^^^^^^^^")
+        print(f"assigner: {self.train_cfg.assigner}")
         if self.with_bbox or self.with_mask:
             num_imgs = len(img_metas)
             if gt_bboxes_ignore is None:
@@ -92,12 +96,13 @@ class StandardRoIHeadCustom(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
             for i in range(num_imgs):
                 assign_result = self.bbox_assigner.assign(
                     proposal_list[i], gt_bboxes[i], gt_bboxes_ignore[i],
-                    gt_labels[i])
+                    gt_labels[i], gt_alpha[i])
                 sampling_result = self.bbox_sampler.sample(
                     assign_result,
                     proposal_list[i],
                     gt_bboxes[i],
                     gt_labels[i],
+                    gt_alpha[i],
                     feats=[lvl_feat[i][None] for lvl_feat in x])
                 sampling_results.append(sampling_result)
 
@@ -131,14 +136,14 @@ class StandardRoIHeadCustom(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
             cls_score=cls_score, bbox_pred=bbox_pred, bbox_feats=bbox_feats)
         return bbox_results
 
-    def _bbox_forward_train(self, x, sampling_results, gt_bboxes, gt_labels,
+    def _bbox_forward_train(self, x, sampling_results, gt_bboxes, gt_labels, gt_alpha,
                             img_metas):
         """Run forward function and calculate loss for box head in training."""
         rois = bbox2roi([res.bboxes for res in sampling_results])
         bbox_results = self._bbox_forward(x, rois)
 
         bbox_targets = self.bbox_head.get_targets(sampling_results, gt_bboxes,
-                                                  gt_labels, self.train_cfg)
+                                                  gt_labels, gt_alpha, self.train_cfg)
         loss_bbox = self.bbox_head.loss(bbox_results['cls_score'],
                                         bbox_results['bbox_pred'], rois,
                                         *bbox_targets)

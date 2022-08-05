@@ -203,4 +203,21 @@ class AssignResult(util_mixins.NiceRepr):
             [self.max_overlaps.new_ones(len(gt_labels)), self.max_overlaps])
 
         if self.labels is not None:
+            print("************************************")   # DEBUG
+            print(f"gt_labels: {gt_labels}")    # DEBUG
+            print(f"labels: {self.labels}")     # DEBUG
             self.labels = torch.cat([gt_labels, self.labels])
+    
+    
+    def add_gt_alpha_(self, gt_alpha):
+        """Add ground truth of alpha
+        """
+        self_inds = torch.arange(
+            1, len(gt_alpha) + 1, dtype=torch.float, device=gt_alpha.device)
+        self.gt_inds = torch.cat([self_inds, self.gt_inds])
+
+        self.max_overlaps = torch.cat(
+            [self.max_overlaps.new_ones(len(gt_alpha)), self.max_overlaps])
+
+        if self.alpha is not None:
+            self.alpha = torch.cat([gt_alpha, self.alpha])

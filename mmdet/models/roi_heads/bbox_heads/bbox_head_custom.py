@@ -43,7 +43,7 @@ class BBoxHeadCustom(BaseModule):
                  loss_alpha=dict(
                      type='L1Loss', loss_weight=1.0),
                  init_cfg=None):
-        super(BBoxHead, self).__init__(init_cfg)
+        super(BBoxHeadCustom, self).__init__(init_cfg)
         assert with_cls or with_reg
         self.with_avg_pool = with_avg_pool
         self.with_cls = with_cls
@@ -57,6 +57,7 @@ class BBoxHeadCustom(BaseModule):
         self.reg_decoded_bbox = reg_decoded_bbox
         self.reg_predictor_cfg = reg_predictor_cfg
         self.cls_predictor_cfg = cls_predictor_cfg
+        self.alpha_predictor_cfg = alpha_predictor_cfg
         self.fp16_enabled = False
 
         self.bbox_coder = build_bbox_coder(bbox_coder)
@@ -187,7 +188,7 @@ class BBoxHeadCustom(BaseModule):
         bbox_targets = pos_bboxes.new_zeros(num_samples, 4)
         bbox_weights = pos_bboxes.new_zeros(num_samples, 4)
         # alpha targets and weights
-        alpha = pos_bboxes.new_zeros(num_samples, dtype=torch.long)
+        alpha_targets = pos_bboxes.new_zeros(num_samples, dtype=torch.long)
         alpha_weights = pos_bboxes.new_zeros(num_samples)
 
         if num_pos > 0:
@@ -266,7 +267,7 @@ class BBoxHeadCustom(BaseModule):
         neg_bboxes_list = [res.neg_bboxes for res in sampling_results]
         pos_gt_bboxes_list = [res.pos_gt_bboxes for res in sampling_results]
         pos_gt_labels_list = [res.pos_gt_labels for res in sampling_results]
-        
+        pos_gt_alpha_list = [res.pos_gt_alpha for res in sampling_results]
 
         labels, label_weights, bbox_targets, bbox_weights = multi_apply(
             self._get_target_single,
