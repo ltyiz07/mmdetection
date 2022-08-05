@@ -77,3 +77,27 @@ class KittiDataset(CustomDataset):
       data_infos.append(data_info)
 
     return data_infos
+  
+  def __getitem__(self, idx):
+      """Get training/test data after pipeline.
+
+      Args:
+          idx (int): Index of data.
+
+      Returns:
+          dict: Training/test data (with annotation if `test_mode` is set \
+              True).
+      """
+
+      if self.test_mode:
+          return self.prepare_test_img(idx)
+      while True:
+          data = self.prepare_train_img(idx)
+          if data is None:
+              idx = self._rand_another(idx)
+              continue
+          print("******************************")
+          print(data.keys())
+          print(data.get("gt_bboxes"))
+          print(data.get("gt_labels"))
+          return data

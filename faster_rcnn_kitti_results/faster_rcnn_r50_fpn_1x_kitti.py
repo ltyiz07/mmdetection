@@ -166,7 +166,7 @@ data = dict(
     train=dict(
         type='KittiDataset',
         ann_file='data/kitti/train.txt',
-        img_prefix='data/kitti/training/image_2',
+        img_prefix='data/kitti/training/image_2/',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(type='LoadAnnotations', with_bbox=True),
@@ -184,7 +184,7 @@ data = dict(
     val=dict(
         type='KittiDataset',
         ann_file='data/kitti/val.txt',
-        img_prefix='data/kitti/training/image_2',
+        img_prefix='data/kitti/training/image_2/',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(
@@ -207,9 +207,9 @@ data = dict(
     test=dict(
         type='KittiDataset',
         ann_file='data/kitti/val.txt',
-        img_prefix='data/kitti/training/image_2',
+        img_prefix='data/kitti/training/image_2/',
         pipeline=[
-            dict(type='LoadImageFromWebcam'),
+            dict(type='LoadImageFromFile'),
             dict(
                 type='MultiScaleFlipAug',
                 img_scale=(1333, 800),
@@ -251,5 +251,5 @@ seed = 0
 gpu_ids = [0]
 opencv_num_threads = 0
 mp_start_method = 'fork'
-auto_scale_lr = dict(enable=False, base_batch_size=16)
+auto_scale_lr = dict(enable=True, base_batch_size=16)
 auto_resume = False
