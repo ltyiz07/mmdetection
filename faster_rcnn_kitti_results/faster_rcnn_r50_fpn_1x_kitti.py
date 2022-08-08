@@ -254,5 +254,5 @@ seed = 0
 gpu_ids = [0]
 opencv_num_threads = 0
 mp_start_method = 'fork'
-auto_scale_lr = dict(enable=True, base_batch_size=16)
+auto_scale_lr = dict(enable=False, base_batch_size=16)
 auto_resume = False
