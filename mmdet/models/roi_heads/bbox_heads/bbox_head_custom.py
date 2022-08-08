@@ -136,8 +136,7 @@ class BBoxHeadCustom(BaseModule):
                 x = torch.mean(x, dim=(-1, -2))
         cls_score = self.fc_cls(x) if self.with_cls else None
         bbox_pred = self.fc_reg(x) if self.with_reg else None
-        alpha_pred = self.fc_alpha(x) if self.with_alpha else None
-        return cls_score, bbox_pred, alpha_pred
+        return cls_score, bbox_pred
 
     def _get_target_single(self, pos_bboxes, neg_bboxes, pos_gt_bboxes,
                            pos_gt_labels, pos_gt_alpha, cfg):
@@ -208,10 +207,6 @@ class BBoxHeadCustom(BaseModule):
             bbox_weights[:num_pos, :] = 1
         if num_neg > 0:
             label_weights[-num_neg:] = 1.0
-
-        print("**************************************************")
-        print(f"labels: {labels}, label_weights: {label_weights}, bbox_targets: {bbox_targets}, bbox_weights: {bbox_weights}")
-        print(f"alpha: {alpha}")
         return labels, label_weights, bbox_targets, bbox_weights
 
     def get_targets(self,

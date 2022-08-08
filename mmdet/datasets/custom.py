@@ -219,10 +219,6 @@ class CustomDataset(Dataset):
             if data is None:
                 idx = self._rand_another(idx)
                 continue
-            print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
-            print(data.keys())
-            print(data.get("gt_labels"))
-            print(data.get("gt_alpha"))
             return data
 
     def prepare_train_img(self, idx):

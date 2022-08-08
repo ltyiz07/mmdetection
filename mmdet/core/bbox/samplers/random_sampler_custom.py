@@ -75,12 +75,15 @@ class RandomSamplerCustom(BaseSampler):
             if gt_labels is None:
                 raise ValueError(
                     'gt_labels must be given when add_gt_as_proposals is True')
+            if gt_alpha is None:
+                raise ValueError(
+                    'gt_alpha must be given when add_gt_as_proposals is True')
             bboxes = torch.cat([gt_bboxes, bboxes], dim=0)
             assign_result.add_gt_(gt_labels)
+            assign_result.add_gt_alpha_(gt_alpha) # added line
             gt_ones = bboxes.new_ones(gt_bboxes.shape[0], dtype=torch.uint8)
             gt_flags = torch.cat([gt_ones, gt_flags])
 
-        assign_result.add_gt_alpha_(gt_alpha) # added line
         num_expected_pos = int(self.num * self.pos_fraction)
         pos_inds = self.pos_sampler._sample_pos(
             assign_result, num_expected_pos, bboxes=bboxes, **kwargs)

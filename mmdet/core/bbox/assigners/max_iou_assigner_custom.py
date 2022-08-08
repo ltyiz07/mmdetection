@@ -3,7 +3,7 @@ import torch
 
 from ..builder import BBOX_ASSIGNERS
 from ..iou_calculators import build_iou_calculator
-from .assign_result import AssignResult
+from .assign_result_custom import AssignResultCustom
 from .base_assigner import BaseAssigner
 
 
@@ -110,8 +110,11 @@ class MaxIoUAssignerCustom(BaseAssigner):
             if gt_alpha is not None:
                 gt_alpha = gt_alpha.cpu()
 
+        print("********************************")
+        print(f"gt_bboxes: {gt_bboxes}")
+        print(f"bboxes: {bboxes}")
         overlaps = self.iou_calculator(gt_bboxes, bboxes)
-
+        print(f"overlaps: {overlaps}")
         if (self.ignore_iof_thr > 0 and gt_bboxes_ignore is not None
                 and gt_bboxes_ignore.numel() > 0 and bboxes.numel() > 0):
             if self.ignore_wrt_candidates:
@@ -130,6 +133,7 @@ class MaxIoUAssignerCustom(BaseAssigner):
             assign_result.max_overlaps = assign_result.max_overlaps.to(device)
             if assign_result.labels is not None:
                 assign_result.labels = assign_result.labels.to(device)
+
         return assign_result
 
     def assign_wrt_overlaps(self, overlaps, gt_labels=None):
@@ -162,7 +166,7 @@ class MaxIoUAssignerCustom(BaseAssigner):
                 assigned_labels = overlaps.new_full((num_bboxes, ),
                                                     -1,
                                                     dtype=torch.long)
-            return AssignResult(
+            return AssignResultCustom(
                 num_gts,
                 assigned_gt_inds,
                 max_overlaps,
@@ -216,5 +220,5 @@ class MaxIoUAssignerCustom(BaseAssigner):
         else:
             assigned_labels = None
 
-        return AssignResult(
+        return AssignResultCustom(
             num_gts, assigned_gt_inds, max_overlaps, labels=assigned_labels)

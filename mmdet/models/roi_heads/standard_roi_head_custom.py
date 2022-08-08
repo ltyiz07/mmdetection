@@ -15,8 +15,6 @@ class StandardRoIHeadCustom(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
         """Initialize assigner and sampler."""
         self.bbox_assigner = None
         self.bbox_sampler = None
-        print("^^assigner^^^^^^^^^^^^^^^^^^^^^^")
-        print(f"assigner: {self.train_cfg.assigner}")
         if self.train_cfg:
             self.bbox_assigner = build_assigner(self.train_cfg.assigner)
             self.bbox_sampler = build_sampler(
@@ -84,10 +82,6 @@ class StandardRoIHeadCustom(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
             dict[str, Tensor]: a dictionary of loss components
         """
         # assign gts and sample proposals
-        print("*****************************")
-        print(f"gt_alpha: {gt_alpha}")
-        print("^^assigner^^^^^^^^^^^^^^^^^^^^^^")
-        print(f"assigner: {self.train_cfg.assigner}")
         if self.with_bbox or self.with_mask:
             num_imgs = len(img_metas)
             if gt_bboxes_ignore is None:

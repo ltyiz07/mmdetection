@@ -40,11 +40,12 @@ class AssignResultCustom(util_mixins.NiceRepr):
                       labels.shape=(7,))>
     """
 
-    def __init__(self, num_gts, gt_inds, max_overlaps, labels=None):
+    def __init__(self, num_gts, gt_inds, max_overlaps, labels=None, alpha=None):
         self.num_gts = num_gts
         self.gt_inds = gt_inds
         self.max_overlaps = max_overlaps
         self.labels = labels
+        self.alpha = alpha
         # Interface for possible user-defined properties
         self._extra_properties = {}
 
@@ -203,9 +204,6 @@ class AssignResultCustom(util_mixins.NiceRepr):
             [self.max_overlaps.new_ones(len(gt_labels)), self.max_overlaps])
 
         if self.labels is not None:
-            print("************************************")   # DEBUG
-            print(f"gt_labels: {gt_labels}")    # DEBUG
-            print(f"labels: {self.labels}")     # DEBUG
             self.labels = torch.cat([gt_labels, self.labels])
     
     

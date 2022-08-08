@@ -14,6 +14,7 @@ from .sim_ota_assigner import SimOTAAssigner
 from .task_aligned_assigner import TaskAlignedAssigner
 from .uniform_assigner import UniformAssigner
 from .max_iou_assigner_custom import MaxIoUAssignerCustom
+from .assign_result_custom import AssignResultCustom
 
 __all__ = [
     'BaseAssigner', 'MaxIoUAssigner', 'ApproxMaxIoUAssigner', 'AssignResult',

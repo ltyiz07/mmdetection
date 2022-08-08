@@ -16,8 +16,8 @@ class ConvFCBBoxHeadCustom(BBoxHeadCustom):
     .. code-block:: none
 
                                     /-> cls convs -> cls fcs -> cls
-        shared convs -> shared fcs
-                                    \-> reg convs -> reg fcs -> reg
+        shared convs -> shared fcs  --> reg convs -> reg fcs -> reg
+                                    \-> reg alphas -> alpha fcs -> reg
     """  # noqa: W605
 
     def __init__(self,
@@ -159,6 +159,8 @@ class ConvFCBBoxHeadCustom(BBoxHeadCustom):
 
     def forward(self, x):
         # shared part
+        print("***************************************")
+        print(f"x: {x}")
         if self.num_shared_convs > 0:
             for conv in self.shared_convs:
                 x = conv(x)
@@ -195,6 +197,7 @@ class ConvFCBBoxHeadCustom(BBoxHeadCustom):
 
         cls_score = self.fc_cls(x_cls) if self.with_cls else None
         bbox_pred = self.fc_reg(x_reg) if self.with_reg else None
+        # alpha_pred = self.fc_alpha(x) if self.with_alpha else None
         return cls_score, bbox_pred
 
 
