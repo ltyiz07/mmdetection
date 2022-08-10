@@ -167,8 +167,11 @@ class BBoxHead(BaseModule):
         bbox_targets = pos_bboxes.new_zeros(num_samples, 4)
         bbox_weights = pos_bboxes.new_zeros(num_samples, 4)
         if num_pos > 0:
+            ## labes[list]: array length of 
             labels[:num_pos] = pos_gt_labels
+            ## set pos_weight
             pos_weight = 1.0 if cfg.pos_weight <= 0 else cfg.pos_weight
+            ## set label_weights array until index num_pos - 1 to pos_weight
             label_weights[:num_pos] = pos_weight
             if not self.reg_decoded_bbox:
                 pos_bbox_targets = self.bbox_coder.encode(

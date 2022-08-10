@@ -57,6 +57,7 @@ class StandardRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
                       proposal_list,
                       gt_bboxes,
                       gt_labels,
+                      gt_alpha,
                       gt_bboxes_ignore=None,
                       gt_masks=None,
                       **kwargs):
@@ -97,6 +98,7 @@ class StandardRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
                     gt_labels[i],
                     feats=[lvl_feat[i][None] for lvl_feat in x])
                 sampling_results.append(sampling_result)
+                print(f"sampling_result: {sampling_result}")
 
         losses = dict()
         # bbox head forward and loss
@@ -122,12 +124,12 @@ class StandardRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
             x[:self.bbox_roi_extractor.num_inputs], rois)
         if self.with_shared_head:
             bbox_feats = self.shared_head(bbox_feats)
-        cls_score, bbox_pred, test_alpha = self.bbox_head(bbox_feats)
-        print(f"clas_score: {cls_score[0]}, bbox_pred: {bbox_pred[0]}, test_alpha: {test_alpha}")
+        cls_score, bbox_pred, alpha_pred = self.bbox_head(bbox_feats)
+        # print(f"clas_score: {cls_score[0]}, bbox_pred: {bbox_pred[0]}, test_alpha: {alpha_pred}")
         # cls_score, bbox_pred = self.bbox_head(bbox_feats)
 
         bbox_results = dict(
-            cls_score=cls_score, bbox_pred=bbox_pred, bbox_feats=bbox_feats)
+            cls_score=cls_score, bbox_pred=bbox_pred, alpha_pred=alpha_pred, bbox_feats=bbox_feats)
         return bbox_results
 
     def _bbox_forward_train(self, x, sampling_results, gt_bboxes, gt_labels,

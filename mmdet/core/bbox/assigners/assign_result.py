@@ -183,7 +183,6 @@ class AssignResult(util_mixins.NiceRepr):
                         # BG cat_id: num_class
                         rng.randint(0, num_classes, size=num_preds))
                     labels[~is_assigned] = 0
-            else:
                 labels = None
 
         self = cls(num_gts, gt_inds, max_overlaps, labels)
