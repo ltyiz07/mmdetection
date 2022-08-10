@@ -124,7 +124,7 @@ model = dict(
             nms=dict(type='nms', iou_threshold=0.5),
             max_per_img=100)))
 dataset_type = 'KittiDataset'
-data_root = 'data/kitti/'
+data_root = 'data/kiti/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 train_pipeline = [
@@ -165,8 +165,13 @@ data = dict(
     workers_per_gpu=2,
     train=dict(
         type='KittiDataset',
+<<<<<<< HEAD
         ann_file='data/kitti/train.txt',
         img_prefix='data/kitti/training/image_2/',
+=======
+        ann_file='data/kiti/train.txt',
+        img_prefix='data/kiti/training/image_2/',
+>>>>>>> 961957925b5a366877d167bf02c06f81be898854
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(
@@ -186,8 +191,13 @@ data = dict(
         ]),
     val=dict(
         type='KittiDataset',
+<<<<<<< HEAD
         ann_file='data/kitti/val.txt',
         img_prefix='data/kitti/training/image_2/',
+=======
+        ann_file='data/kiti/val.txt',
+        img_prefix='data/kiti/training/image_2/',
+>>>>>>> 961957925b5a366877d167bf02c06f81be898854
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(
@@ -209,8 +219,13 @@ data = dict(
         ]),
     test=dict(
         type='KittiDataset',
+<<<<<<< HEAD
         ann_file='data/kitti/val.txt',
         img_prefix='data/kitti/training/image_2/',
+=======
+        ann_file='data/kiti/val.txt',
+        img_prefix='data/kiti/training/image_2/',
+>>>>>>> 961957925b5a366877d167bf02c06f81be898854
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(
