@@ -60,9 +60,6 @@ class ConvFCBBoxHead(BBoxHead):
                 self.num_shared_convs, self.num_shared_fcs, self.in_channels,
                 True)
         self.shared_out_channels = last_layer_dim
-        print("******************************")
-        print(f"num_cls_convs: {self.num_cls_convs}, num_cls_fcs: {self.num_cls_fcs}, shared_out_channels: {self.shared_out_channels}")
-        print(f"num_reg_convs: {self.num_reg_convs}, num_reg_fcs: {self.num_reg_fcs}, shared_out_channels: {self.shared_out_channels}")
 
         # add cls specific branch
         self.cls_convs, self.cls_fcs, self.cls_last_dim = \
@@ -108,8 +105,8 @@ class ConvFCBBoxHead(BBoxHead):
                 self.reg_predictor_cfg,
                 in_features=self.reg_last_dim,
                 out_features=out_dim_reg)
-        print(f"cls_predictor_cfg: {self.cls_predictor_cfg}")
-        print(f"reg_predictor_cfg: {self.reg_predictor_cfg}")
+        # print(f"cls_predictor_cfg: {self.cls_predictor_cfg}")
+        # print(f"reg_predictor_cfg: {self.reg_predictor_cfg}")
         self.fc_alpha = build_linear_layer(
             {"type": "Linear"},
             in_features=self.alpha_last_dim,

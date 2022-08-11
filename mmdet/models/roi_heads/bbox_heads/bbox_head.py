@@ -167,9 +167,9 @@ class BBoxHead(BaseModule):
         bbox_targets = pos_bboxes.new_zeros(num_samples, 4)
         bbox_weights = pos_bboxes.new_zeros(num_samples, 4)
         if num_pos > 0:
-            ## labes[list]: array length of 
+            ## labels[list]: array length of 
             labels[:num_pos] = pos_gt_labels
-            ## set pos_weight
+            ## set pos_weight according to cfg.pos_weight
             pos_weight = 1.0 if cfg.pos_weight <= 0 else cfg.pos_weight
             ## set label_weights array until index num_pos - 1 to pos_weight
             label_weights[:num_pos] = pos_weight
@@ -193,6 +193,7 @@ class BBoxHead(BaseModule):
                     sampling_results,
                     gt_bboxes,
                     gt_labels,
+                    gt_alpha,
                     rcnn_train_cfg,
                     concat=True):
         """Calculate the ground truth for all samples in a batch according to
@@ -241,6 +242,12 @@ class BBoxHead(BaseModule):
         neg_bboxes_list = [res.neg_bboxes for res in sampling_results]
         pos_gt_bboxes_list = [res.pos_gt_bboxes for res in sampling_results]
         pos_gt_labels_list = [res.pos_gt_labels for res in sampling_results]
+        
+        pos_inds = [res.pos_inds for res in sampling_results]
+        pos_alpha = [gt_alpha[i] for i in pos_inds]
+        print("************************")
+        print(f"pos_alpha: {pos_alpha}")
+
         labels, label_weights, bbox_targets, bbox_weights = multi_apply(
             self._get_target_single,
             pos_bboxes_list,

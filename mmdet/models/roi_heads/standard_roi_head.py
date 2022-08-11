@@ -104,7 +104,7 @@ class StandardRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
         # bbox head forward and loss
         if self.with_bbox:
             bbox_results = self._bbox_forward_train(x, sampling_results,
-                                                    gt_bboxes, gt_labels,
+                                                    gt_bboxes, gt_labels, gt_alpha,
                                                     img_metas)
             losses.update(bbox_results['loss_bbox'])
 
@@ -125,21 +125,21 @@ class StandardRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
         if self.with_shared_head:
             bbox_feats = self.shared_head(bbox_feats)
         cls_score, bbox_pred, alpha_pred = self.bbox_head(bbox_feats)
-        # print(f"clas_score: {cls_score[0]}, bbox_pred: {bbox_pred[0]}, test_alpha: {alpha_pred}")
+        # print(f"class_score: {cls_score[0]}, bbox_pred: {bbox_pred[0]}, test_alpha: {alpha_pred}")
         # cls_score, bbox_pred = self.bbox_head(bbox_feats)
 
         bbox_results = dict(
             cls_score=cls_score, bbox_pred=bbox_pred, alpha_pred=alpha_pred, bbox_feats=bbox_feats)
         return bbox_results
 
-    def _bbox_forward_train(self, x, sampling_results, gt_bboxes, gt_labels,
+    def _bbox_forward_train(self, x, sampling_results, gt_bboxes, gt_labels, gt_alpha,
                             img_metas):
         """Run forward function and calculate loss for box head in training."""
         rois = bbox2roi([res.bboxes for res in sampling_results])
         bbox_results = self._bbox_forward(x, rois)
 
         bbox_targets = self.bbox_head.get_targets(sampling_results, gt_bboxes,
-                                                  gt_labels, self.train_cfg)
+                                                  gt_labels, gt_alpha, self.train_cfg)
         loss_bbox = self.bbox_head.loss(bbox_results['cls_score'],
                                         bbox_results['bbox_pred'], rois,
                                         *bbox_targets)
