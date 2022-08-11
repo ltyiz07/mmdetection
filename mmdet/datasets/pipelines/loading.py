@@ -228,6 +228,7 @@ class LoadAnnotations:
     def __init__(self,
                  with_bbox=True,
                  with_label=True,
+                 with_alpha=True,
                  with_mask=False,
                  with_seg=False,
                  poly2mask=True,
@@ -235,6 +236,7 @@ class LoadAnnotations:
                  file_client_args=dict(backend='disk')):
         self.with_bbox = with_bbox
         self.with_label = with_label
+        self.with_alpha = with_alpha
         self.with_mask = with_mask
         self.with_seg = with_seg
         self.poly2mask = poly2mask
@@ -285,6 +287,17 @@ class LoadAnnotations:
         """
 
         results['gt_labels'] = results['ann_info']['labels'].copy()
+        return results
+
+    def _load_alpha(self, results):
+        """Private function to load alpha (observation angle).
+        Args:
+            results (dict): Result dict from :obj:`mmdet.CustomDataset`.
+        Returns:
+            dict: The dict contains loaded alpha annotations.
+        """
+
+        results['gt_alpha'] = results['ann_info']['alpha'].copy()
         return results
 
     def _poly2mask(self, mask_ann, img_h, img_w):
@@ -394,6 +407,8 @@ class LoadAnnotations:
                 return None
         if self.with_label:
             results = self._load_labels(results)
+        if self.with_alpha:
+            results = self._load_alpha(results)
         if self.with_mask:
             results = self._load_masks(results)
         if self.with_seg:
@@ -402,8 +417,9 @@ class LoadAnnotations:
 
     def __repr__(self):
         repr_str = self.__class__.__name__
-        repr_str += f'(with_bbox={self.with_bbox}, '
+        repr_str += f'with_bbox={self.with_bbox}, '
         repr_str += f'with_label={self.with_label}, '
+        repr_str += f'with_alpha={self.with_alpha}, '
         repr_str += f'with_mask={self.with_mask}, '
         repr_str += f'with_seg={self.with_seg}, '
         repr_str += f'poly2mask={self.poly2mask}, '
