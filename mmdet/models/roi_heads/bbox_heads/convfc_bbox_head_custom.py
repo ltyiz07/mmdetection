@@ -159,8 +159,6 @@ class ConvFCBBoxHeadCustom(BBoxHeadCustom):
 
     def forward(self, x):
         # shared part
-        print("***************************************")
-        print(f"x: {x}")
         if self.num_shared_convs > 0:
             for conv in self.shared_convs:
                 x = conv(x)

@@ -11,9 +11,7 @@ from .bbox_head import BBoxHead
 class ConvFCBBoxHead(BBoxHead):
     r"""More general bbox head, with shared conv and fc layers and two optional
     separated branches.
-
     .. code-block:: none
-
                                     /-> cls convs -> cls fcs -> cls
         shared convs -> shared fcs
                                     \-> reg convs -> reg fcs -> reg
@@ -71,11 +69,21 @@ class ConvFCBBoxHead(BBoxHead):
             self._add_conv_fc_branch(
                 self.num_reg_convs, self.num_reg_fcs, self.shared_out_channels)
 
+        # set attribs for extra fc layer
+        self.num_alpha_convs = 0
+        self.num_alpha_fcs = 0
+        # add alpha specific branch
+        self.alpha_convs, self.alpha_fcs, self.alpha_last_dim = \
+            self._add_conv_fc_branch(
+                self.num_alpha_convs, self.num_alpha_fcs, self.shared_out_channels)
+
         if self.num_shared_fcs == 0 and not self.with_avg_pool:
             if self.num_cls_fcs == 0:
                 self.cls_last_dim *= self.roi_feat_area
             if self.num_reg_fcs == 0:
                 self.reg_last_dim *= self.roi_feat_area
+            if self.num_alpha_fcs == 0:
+                self.alpha_last_dim *= self.roi_feat_area
 
         self.relu = nn.ReLU(inplace=True)
         # reconstruct fc_cls and fc_reg since input channels are changed
@@ -95,6 +103,13 @@ class ConvFCBBoxHead(BBoxHead):
                 self.reg_predictor_cfg,
                 in_features=self.reg_last_dim,
                 out_features=out_dim_reg)
+        # print(f"cls_predictor_cfg: {self.cls_predictor_cfg}")
+        # print(f"reg_predictor_cfg: {self.reg_predictor_cfg}")
+        self.fc_alpha = build_linear_layer(
+            {"type": "Linear"},
+            in_features=self.alpha_last_dim,
+            out_features=self.num_classes
+        )
 
         if init_cfg is None:
             # when init_cfg is None,
@@ -121,7 +136,6 @@ class ConvFCBBoxHead(BBoxHead):
                             in_channels,
                             is_shared=False):
         """Add shared or separable branch.
-
         convs -> avg pool (optional) -> fcs
         """
         last_layer_dim = in_channels
@@ -173,6 +187,7 @@ class ConvFCBBoxHead(BBoxHead):
         # separate branches
         x_cls = x
         x_reg = x
+        x_alpha = x
 
         for conv in self.cls_convs:
             x_cls = conv(x_cls)
@@ -192,9 +207,19 @@ class ConvFCBBoxHead(BBoxHead):
         for fc in self.reg_fcs:
             x_reg = self.relu(fc(x_reg))
 
+        for conv in self.alpha_convs:
+            x_alpha = conv(x_alpha)
+        if x_alpha.dim() > 2:
+            if self.with_avg_pool:
+                x_alpha = self.avg_pool(x_alpha)
+            x_alpha = x_alpha.flatten(1)
+        for fc in self.alpha_fcs:
+            x_alpha = self.relu(fc(x_alpha))
+
         cls_score = self.fc_cls(x_cls) if self.with_cls else None
         bbox_pred = self.fc_reg(x_reg) if self.with_reg else None
-        return cls_score, bbox_pred
+        alpha_pred = self.fc_alpha(x_alpha) if True else None
+        return cls_score, bbox_pred, alpha_pred
 
 
 @HEADS.register_module()

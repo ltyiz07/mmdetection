@@ -123,7 +123,6 @@ class BBoxHead(BaseModule):
                            pos_gt_labels, cfg):
         """Calculate the ground truth for proposals in the single image
         according to the sampling results.
-
         Args:
             pos_bboxes (Tensor): Contains all the positive boxes,
                 has shape (num_pos, 4), the last dimension 4
@@ -138,11 +137,9 @@ class BBoxHead(BaseModule):
             pos_gt_labels (Tensor): Contains gt_labels for
                 all positive samples, has shape (num_pos, ).
             cfg (obj:`ConfigDict`): `train_cfg` of R-CNN.
-
         Returns:
             Tuple[Tensor]: Ground truth for proposals
             in a single image. Containing the following Tensors:
-
                 - labels(Tensor): Gt_labels for all proposals, has
                   shape (num_proposals,).
                 - label_weights(Tensor): Labels_weights for all
@@ -167,8 +164,11 @@ class BBoxHead(BaseModule):
         bbox_targets = pos_bboxes.new_zeros(num_samples, 4)
         bbox_weights = pos_bboxes.new_zeros(num_samples, 4)
         if num_pos > 0:
+            ## labels[list]: array length of 
             labels[:num_pos] = pos_gt_labels
+            ## set pos_weight according to cfg.pos_weight
             pos_weight = 1.0 if cfg.pos_weight <= 0 else cfg.pos_weight
+            ## set label_weights array until index num_pos - 1 to pos_weight
             label_weights[:num_pos] = pos_weight
             if not self.reg_decoded_bbox:
                 pos_bbox_targets = self.bbox_coder.encode(
@@ -194,11 +194,9 @@ class BBoxHead(BaseModule):
                     concat=True):
         """Calculate the ground truth for all samples in a batch according to
         the sampling_results.
-
         Almost the same as the implementation in bbox_head, we passed
         additional parameters pos_inds_list and neg_inds_list to
         `_get_target_single` function.
-
         Args:
             sampling_results (List[obj:SamplingResults]): Assign results of
                 all images in a batch after sampling.
@@ -210,11 +208,9 @@ class BBoxHead(BaseModule):
             rcnn_train_cfg (obj:ConfigDict): `train_cfg` of RCNN.
             concat (bool): Whether to concatenate the results of all
                 the images in a single batch.
-
         Returns:
             Tuple[Tensor]: Ground truth for proposals in a single image.
             Containing the following list of Tensors:
-
                 - labels (list[Tensor],Tensor): Gt_labels for all
                   proposals in a batch, each tensor in list has
                   shape (num_proposals,) when `concat=False`, otherwise
@@ -238,6 +234,11 @@ class BBoxHead(BaseModule):
         neg_bboxes_list = [res.neg_bboxes for res in sampling_results]
         pos_gt_bboxes_list = [res.pos_gt_bboxes for res in sampling_results]
         pos_gt_labels_list = [res.pos_gt_labels for res in sampling_results]
+
+        # Added line.
+        # pos_inds_list = [res.pos_inds for res in sampling_results] 
+        # pos_alpha_list = [[gt_alpha[e][i] for i in pos_inds] for e, pos_inds in enumerate(pos_inds_list)]
+
         labels, label_weights, bbox_targets, bbox_weights = multi_apply(
             self._get_target_single,
             pos_bboxes_list,
@@ -257,13 +258,17 @@ class BBoxHead(BaseModule):
     def loss(self,
              cls_score,
              bbox_pred,
+            #  alpha_pred,
              rois,
              labels,
+            #  alpha,
              label_weights,
              bbox_targets,
              bbox_weights,
              reduction_override=None):
         losses = dict()
+        print(f"labels: {labels}")
+        print(f"label_weights: {label_weights}")
         if cls_score is not None:
             avg_factor = max(torch.sum(label_weights > 0).float().item(), 1.)
             if cls_score.numel() > 0:
@@ -322,7 +327,6 @@ class BBoxHead(BaseModule):
                    rescale=False,
                    cfg=None):
         """Transform network output for a batch into bbox predictions.
-
         Args:
             rois (Tensor): Boxes to be transformed. Has shape (num_boxes, 5).
                 last dimension 5 arrange as (batch_index, x1, y1, x2, y2).
@@ -337,7 +341,6 @@ class BBoxHead(BaseModule):
             rescale (bool): If True, return boxes in original image space.
                 Default: False.
             cfg (obj:`ConfigDict`): `test_cfg` of Bbox Head. Default: None
-
         Returns:
             tuple[Tensor, Tensor]:
                 First tensor is `det_bboxes`, has the shape
@@ -380,7 +383,6 @@ class BBoxHead(BaseModule):
     @force_fp32(apply_to=('bbox_preds', ))
     def refine_bboxes(self, rois, labels, bbox_preds, pos_is_gts, img_metas):
         """Refine bboxes during training.
-
         Args:
             rois (Tensor): Shape (n*bs, 5), where n is image number per GPU,
                 and bs is the sampled RoIs per image. The first column is
@@ -390,10 +392,8 @@ class BBoxHead(BaseModule):
             pos_is_gts (list[Tensor]): Flags indicating if each positive bbox
                 is a gt bbox.
             img_metas (list[dict]): Meta info of each image.
-
         Returns:
             list[Tensor]: Refined bboxes of each image in a mini-batch.
-
         Example:
             >>> # xdoctest: +REQUIRES(module:kwarray)
             >>> import kwarray
@@ -459,7 +459,6 @@ class BBoxHead(BaseModule):
     @force_fp32(apply_to=('bbox_pred', ))
     def regress_by_class(self, rois, label, bbox_pred, img_meta):
         """Regress the bbox for the predicted class. Used in Cascade R-CNN.
-
         Args:
             rois (Tensor): Rois from `rpn_head` or last stage
                 `bbox_head`, has shape (num_proposals, 4) or
@@ -471,7 +470,6 @@ class BBoxHead(BaseModule):
                 is False, it has shape (n, num_classes * 4), otherwise
                 it has shape (n, 4).
             img_meta (dict): Image meta info.
-
         Returns:
             Tensor: Regressed bboxes, the same shape as input rois.
         """
@@ -504,7 +502,6 @@ class BBoxHead(BaseModule):
                     cfg=None,
                     **kwargs):
         """Transform network output for a batch into bbox predictions.
-
         Args:
             rois (Tensor): Boxes to be transformed.
                 Has shape (B, num_boxes, 5)
@@ -514,7 +511,6 @@ class BBoxHead(BaseModule):
                 has shape (B, num_boxes, num_classes * 4) when.
             img_shape (torch.Tensor): Shape of image.
             cfg (obj:`ConfigDict`): `test_cfg` of Bbox Head. Default: None
-
         Returns:
             tuple[Tensor, Tensor]: dets of shape [N, num_det, 5]
                 and class labels of shape [N, num_det].

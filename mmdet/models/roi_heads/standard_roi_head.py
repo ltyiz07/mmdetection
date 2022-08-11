@@ -57,6 +57,7 @@ class StandardRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
                       proposal_list,
                       gt_bboxes,
                       gt_labels,
+                      gt_alpha,
                       gt_bboxes_ignore=None,
                       gt_masks=None,
                       **kwargs):
@@ -76,7 +77,6 @@ class StandardRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
                 boxes can be ignored when computing the loss.
             gt_masks (None | Tensor) : true segmentation masks for each box
                 used if the architecture supports a segmentation task.
-
         Returns:
             dict[str, Tensor]: a dictionary of loss components
         """
@@ -97,12 +97,13 @@ class StandardRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
                     gt_labels[i],
                     feats=[lvl_feat[i][None] for lvl_feat in x])
                 sampling_results.append(sampling_result)
+                print(f"sampling_result: {sampling_result}")
 
         losses = dict()
         # bbox head forward and loss
         if self.with_bbox:
             bbox_results = self._bbox_forward_train(x, sampling_results,
-                                                    gt_bboxes, gt_labels,
+                                                    gt_bboxes, gt_labels, gt_alpha,
                                                     img_metas)
             losses.update(bbox_results['loss_bbox'])
 
@@ -122,13 +123,15 @@ class StandardRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
             x[:self.bbox_roi_extractor.num_inputs], rois)
         if self.with_shared_head:
             bbox_feats = self.shared_head(bbox_feats)
-        cls_score, bbox_pred = self.bbox_head(bbox_feats)
+        cls_score, bbox_pred, alpha_pred = self.bbox_head(bbox_feats)
+        # print(f"class_score: {cls_score[0]}, bbox_pred: {bbox_pred[0]}, test_alpha: {alpha_pred}")
+        # cls_score, bbox_pred = self.bbox_head(bbox_feats)
 
         bbox_results = dict(
-            cls_score=cls_score, bbox_pred=bbox_pred, bbox_feats=bbox_feats)
+            cls_score=cls_score, bbox_pred=bbox_pred, alpha_pred=alpha_pred, bbox_feats=bbox_feats)
         return bbox_results
 
-    def _bbox_forward_train(self, x, sampling_results, gt_bboxes, gt_labels,
+    def _bbox_forward_train(self, x, sampling_results, gt_bboxes, gt_labels, gt_alpha,
                             img_metas):
         """Run forward function and calculate loss for box head in training."""
         rois = bbox2roi([res.bboxes for res in sampling_results])
@@ -136,6 +139,8 @@ class StandardRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
 
         bbox_targets = self.bbox_head.get_targets(sampling_results, gt_bboxes,
                                                   gt_labels, self.train_cfg)
+        # print(f"bbox_results: {bbox_results}")
+        # print(f"bbox_targets: {bbox_targets}")
         loss_bbox = self.bbox_head.loss(bbox_results['cls_score'],
                                         bbox_results['bbox_pred'], rois,
                                         *bbox_targets)
@@ -227,7 +232,6 @@ class StandardRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
                     proposals=None,
                     rescale=False):
         """Test without augmentation.
-
         Args:
             x (tuple[Tensor]): Features from upstream network. Each
                 has shape (batch_size, c, h, w).
@@ -237,7 +241,6 @@ class StandardRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
             img_metas (list[dict]): Meta information of images.
             rescale (bool): Whether to rescale the results to
                 the original image. Default: True.
-
         Returns:
             list[list[np.ndarray]] or list[tuple]: When no mask branch,
             it is bbox results of each image and classes with type
@@ -268,7 +271,6 @@ class StandardRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
 
     def aug_test(self, x, proposal_list, img_metas, rescale=False):
         """Test with augmentations.
-
         If rescale is False, then returned bboxes and masks will fit the scale
         of imgs[0].
         """
@@ -307,7 +309,6 @@ class StandardRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
 
     def mask_onnx_export(self, x, img_metas, det_bboxes, det_labels, **kwargs):
         """Export mask branch to onnx which supports batch inference.
-
         Args:
             x (tuple[Tensor]): Feature maps of all scale level.
             img_metas (list[dict]): Image meta info.
@@ -315,7 +316,6 @@ class StandardRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
                 has shape [N, num_bboxes, 5].
             det_labels (Tensor): class labels of
                 shape [N, num_bboxes].
-
         Returns:
             Tensor: The segmentation results of shape [N, num_bboxes,
                 image_height, image_width].
@@ -350,14 +350,12 @@ class StandardRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
     def bbox_onnx_export(self, x, img_metas, proposals, rcnn_test_cfg,
                          **kwargs):
         """Export bbox branch to onnx which supports batch inference.
-
         Args:
             x (tuple[Tensor]): Feature maps of all scale level.
             img_metas (list[dict]): Image meta info.
             proposals (Tensor): Region proposals with
                 batch dimension, has shape [N, num_bboxes, 5].
             rcnn_test_cfg (obj:`ConfigDict`): `test_cfg` of R-CNN.
-
         Returns:
             tuple[Tensor, Tensor]: bboxes of shape [N, num_bboxes, 5]
                 and class labels of shape [N, num_bboxes].
